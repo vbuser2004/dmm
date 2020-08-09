@@ -7,10 +7,11 @@
       dark
     >
       <v-toolbar-title>Meter Organization</v-toolbar-title>
+
     </v-app-bar>
 
     <v-main>
-      <FileUpload/>
+      <FileDrop/>
     </v-main>
     <v-footer
       color="indigo"
@@ -21,13 +22,12 @@
 </template>
 
 <script>
-
-import FileUpload from '@/components/FileUpload.vue'
+import FileDrop from '@/components/FileDrop.vue'
 
 export default {
   name: 'App',
   components: {
-    FileUpload
+    FileDrop
   }
 };
 </script>
