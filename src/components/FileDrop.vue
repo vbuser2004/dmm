@@ -49,18 +49,16 @@
          </v-card>
     </v-container>
     <v-container>
-        <v-btn class="ma-2" :disabled="isValidFiles" outlined color="indigo">Process Files</v-btn>
+        <v-btn class="ma-2" 
+            :loading="loading"            
+            @click="processMeters" 
+            :disabled="isValidFiles" 
+            outlined color="primary">Process Meters</v-btn>
+        <v-btn class="ma-2"
+            @click="reset"
+            outlined color="secondary">Reset</v-btn>
     </v-container>
 
-    <v-container>
-        <h2>Serial: {{ serial }} </h2>
-        <v-text-field
-            label="ID"
-            v-model="id"
-            @keyup.enter.native="getSerial"
-          ></v-text-field>
-          <v-btn @click="getSerial" color="green">Get Serial</v-btn>
-    </v-container>
 </v-container>
 </template>
 
@@ -71,11 +69,10 @@ export default {
   name: "app",
   data() {
       return { 
+          loading: false,
           mrFile: null,
           micasFile: null,
           techFile: null,
-          id: null,
-          serial: null,
           meterList: [],
           micasList: [],
           techList: [],
@@ -88,32 +85,43 @@ export default {
     async getmrFile() {
         if(this.mrFile != null){
             this.meterList = await processfiles.processXcel(this.mrFile)
-            console.log('Meters: ' + JSON.stringify(this.meterList))
-            this.mrCount = `${this.meterList.length} total records`
+//            console.log('Meters: ' + JSON.stringify(this.meterList))
+            this.mrCount = `${(this.meterList.length).toLocaleString()} total records`
         }
     },
     async getmicasFile() {
         if(this.micasFile != null){
             this.micasList = await processfiles.processXcel(this.micasFile)
-            console.log('Micas: ' + JSON.stringify(this.micasList))
-            this.micasCount = `${this.micasList.length} total records`
+            //console.log('Micas: ' + JSON.stringify(this.micasList))
+            this.micasCount = `${(this.micasList.length).toLocaleString()} total records`
         }
     },
     async gettechFile() {
         if(this.techFile != null){
             this.techList = await processfiles.processXcel(this.techFile)
-            console.log('TechList: ' + JSON.stringify(this.techList))
-            this.techCount = `${this.techList.length} total records`
+//            console.log('TechList: ' + JSON.stringify(this.techList))
+            this.techCount = `${(this.techList.length).toLocaleString()} total records`
 }
     },
-        async getSerial(){
-            let micasRecord = this.micasList.find(o => String(o['Machine ID']) === String(this.id))
-            if(micasRecord){
-                this.serial = micasRecord['Serial Number']
-            } else {
-                this.serial = 'Not Found'
-            }            
-        }
+    reset() {
+        this.mrFile = null,
+        this.micasFile = null,
+        this.techFile = null,
+        this.meterList = [],
+        this.micasList = [],
+        this.techList = [],
+        this.mrCount = null,
+        this.micasCount = null,
+        this.techCount = null,
+        this.loading = false
+    },
+    processMeters(){
+        this.loading = true
+        processfiles.updateXcel(this.mrFile, this.meterList.length, this.micasList).then(() => {
+            this.loading = false
+            this.reset()
+        })
+    }
   },
   computed: {
        isValidFiles() {
