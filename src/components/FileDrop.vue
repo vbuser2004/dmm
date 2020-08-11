@@ -98,8 +98,8 @@ export default {
     },
     async gettechFile() {
         if(this.techFile != null){
-            this.techList = await processfiles.processXcel(this.techFile)
-//            console.log('TechList: ' + JSON.stringify(this.techList))
+            this.techList = await processfiles.processXcel(this.techFile, true)
+            //console.log('TechList: ' + JSON.stringify(this.techList))
             this.techCount = `${(this.techList.length).toLocaleString()} total records`
 }
     },
@@ -117,7 +117,7 @@ export default {
     },
     processMeters(){
         this.loading = true
-        processfiles.updateXcel(this.mrFile, this.meterList.length, this.micasList).then(() => {
+        processfiles.updateXcel(this.mrFile, this.meterList, this.micasList, this.techList).then(() => {
             this.loading = false
             this.reset()
         })

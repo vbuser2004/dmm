@@ -3,8 +3,8 @@ import moment from 'moment';
 
 export default {
 
-    processXcel(inputFile) {
-
+    processXcel(inputFile, useDefVal = false) {
+        let serialList = null
         const tempfilereader = new FileReader()
         return new Promise((resolve, reject) => {
             tempfilereader.onerror = () => {
@@ -15,7 +15,12 @@ export default {
             tempfilereader.onload = (evt) => {
                 let data = new Uint8Array(evt.target.result)
                 let workbook = XLSX.read(data, { type: 'array'})
-                const serialList = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'])
+                if(useDefVal){
+                    serialList = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'], {defval: ''})
+                } else {
+                    serialList = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'])                        
+                }
+
                 resolve(serialList)
             }
 
@@ -24,7 +29,9 @@ export default {
         })
 
     },
-    updateXcel(inputFile, recordCount, micasList ) {
+    updateXcel(inputFile, meterList, micasList, techList ) {
+
+        const recordCount = meterList.length
 
         const tempfilereader = new FileReader()
         let counter = 2
@@ -35,6 +42,7 @@ export default {
                 reject(new DOMException('Problem writing data file.'))
             }
 
+            // First Process Meter Reading List from Customer
             tempfilereader.onload = (evt) => {
                 let data = new Uint8Array(evt.target.result)
                 let workbook = XLSX.read(data, { type: 'array'})
@@ -87,8 +95,36 @@ export default {
 
                 while(counter <= (recordCount + 1) )
 
-                resolve(XLSX.writeFile(workbook, `SHARP COMPLETED MR List ${moment().format('MMMM YYYY')}.xlsx`))
+                // Process Tech Meter List
+                techList.forEach((read) => {
+                    const serialToSearch = read.Serial
+                    const results = meterList.filter(x => x['Serial #'] === serialToSearch)
 
+                    if(results.length > 0){
+                        const monoMeter = read['Current Mono']
+                        const colorMeter = read['Current Color']
+                        if(results.length == 1){ //mono only
+                            if(results[0]['Row #'] !== undefined) {
+                                const rowNumMono = results[0]['Row #']
+                                const mcell = 'L' + String(rowNumMono+1)
+                                worksheet[mcell] = { v: monoMeter, t:'n'}
+                            }
+                        } else { //mono and color
+                            if(results[0]['Row #'] !== undefined && results[1]['Row #'] !== undefined) {
+                                const rowNumMono = results[0]['Row #']
+                                const rowNumColor = results[1]['Row #']
+                                console.log('Rows: ' + rowNumMono + ' - ' + rowNumColor)
+                                const mcell = 'L' + String(rowNumMono+1)
+                                const ccell = 'L' + String(rowNumColor+1)
+                                console.log('Cells: ' + mcell + ccell)                                
+                                worksheet[mcell] = { v: monoMeter, t:'n'}
+                                worksheet[ccell] = { v: colorMeter, t:'n'}
+                            }
+                        }
+                    }
+                })
+
+                resolve(XLSX.writeFile(workbook, `SHARP COMPLETED MR List ${moment().format('MMMM YYYY')}.xlsx`))
             }
 
             tempfilereader.readAsArrayBuffer(inputFile)
