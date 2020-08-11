@@ -29,66 +29,24 @@ export default {
         })
 
     },
-    updateXcel(inputFile, meterList, micasList, techList ) {
+    updateXcel(workbook, meterList, micasList, techList ) {
 
         const recordCount = meterList.length
 
-        const tempfilereader = new FileReader()
         let counter = 2
 
-        return new Promise((resolve, reject) => {
-            tempfilereader.onerror = () => {
-                tempfilereader.abort()
-                reject(new DOMException('Problem writing data file.'))
-            }
+        return new Promise((resolve) => {
 
-            // First Process Meter Reading List from Customer
-            tempfilereader.onload = (evt) => {
-                let data = new Uint8Array(evt.target.result)
-                let workbook = XLSX.read(data, { type: 'array'})
+            // Get Worksheet from Workbook
                 let worksheet = workbook.Sheets['Sheet1']
-
                 let range = {s: {r:0, c: 0}, e: {r: (recordCount + 10), c: 12}}
                 worksheet['!ref'] = XLSX.utils.encode_range(range)
-
-
-                meterList.map((meterRead, index, elements) => {
-                    let micasMeter = []
-                    let nextMeterRead = elements[index+1]
-
-
-
-
-
-
-                    if(meterRead['Serial Number'].charAt(0) === '0'){
-                        micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial Number'].substring(1))
-                    } else {
-                        micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial Number'])
-                    } 
-                    
-                     if (micasMeter.length > 0 ){
-                        if(micasMeter.length == 1 ) {
-
-
-                        }
-
-                        if(micasMeter.length > 1) {
-
-                        }
-
-                    }
-
-
-
-                })
-
 
                 do {
                     let sscell = 'F' + String(counter)
                     let nscell = 'F' + String(counter+1)
                     let escell = 'E' + String(counter)
-                    let searchSerial, nextSerial, micasMeter, searchId = null
+                    let searchSerial, nextSerial, micasMeter, searchId, mm = null
                     if(worksheet[sscell] !== undefined){
                         searchId = worksheet[escell].v.toString()
                         searchSerial = worksheet[sscell].v.toString()
@@ -98,14 +56,22 @@ export default {
                     }
                  
                     if(searchSerial != null || undefined){
+
                         if(searchSerial.charAt(0) === '0'){
-                            micasMeter = micasList.find(x => x['Serial Number'].toString() == searchSerial.substring(1) && (x['Machine ID'] == searchId))
+                            mm = micasList.filter(x => x['Serial Number'].toString() == searchSerial.substring(1))
                         } else {
-                            micasMeter = micasList.find(x => x['Serial Number'].toString() == searchSerial && (x['Machine ID'] == searchId))
+                            mm = micasList.filter(x => x['Serial Number'].toString() == searchSerial)
                         } 
                     }
 
-                    if(micasMeter){
+                    if(mm != undefined && mm.length > 0){
+                        if(mm.length > 1) {
+                            micasMeter = mm.find(x => x['Machine Code'] == searchId)
+                        } else {
+                            micasMeter = mm[0]
+                        }
+
+
                         let lscell = 'L' + String(counter)
                         let lncell = 'L' + String(counter+1)
                         if(nextSerial == searchSerial){
@@ -152,8 +118,6 @@ export default {
                     }
                 })
                 resolve(XLSX.writeFile(workbook, `SHARP COMPLETED MR List ${moment().format('MMMM YYYY')}.xlsx`))
-            }
-            tempfilereader.readAsArrayBuffer(inputFile)
-        })
+            })
     }
 }

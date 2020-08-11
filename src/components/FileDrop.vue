@@ -124,7 +124,7 @@ export default {
     processMeters() {
       this.loading = true;
       processfiles
-        .updateXcel(this.mrFile, this.meterList, this.micasList, this.techList)
+        .updateXcel(this.workbook, this.meterList, this.micasList, this.techList)
         .then(() => {
           this.loading = false;
           this.reset();
