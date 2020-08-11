@@ -79,26 +79,32 @@ export default {
       mrCount: null,
       micasCount: null,
       techCount: null,
+      resultPackage: {},
+      workbook: null
     };
   },
   methods: {
     async getmrFile() {
       if (this.mrFile != null) {
-        this.meterList = await processfiles.processXcel(this.mrFile);
+        this.resultPackage = await processfiles.processXcel(this.mrFile)
+        this.meterList = this.resultPackage.serialList
+        this.workbook = this.resultPackage.workbook
         //console.log("Meters: " + JSON.stringify(this.meterList));
         this.mrCount = `${this.meterList.length.toLocaleString()} total records`;
       }
     },
     async getmicasFile() {
       if (this.micasFile != null) {
-        this.micasList = await processfiles.processXcel(this.micasFile);
+         this.resultPackage = await processfiles.processXcel(this.micasFile);
+         this.micasList = this.resultPackage.serialList
         //console.log('Micas: ' + JSON.stringify(this.micasList))
         this.micasCount = `${this.micasList.length.toLocaleString()} total records`;
       }
     },
     async gettechFile() {
       if (this.techFile != null) {
-        this.techList = await processfiles.processXcel(this.techFile, true);
+        this.resultPackage = await processfiles.processXcel(this.techFile, true);
+        this.techList = this.resultPackage.serialList
         //console.log('TechList: ' + JSON.stringify(this.techList))
         this.techCount = `${this.techList.length.toLocaleString()} total records`;
       }

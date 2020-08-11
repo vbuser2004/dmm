@@ -21,7 +21,7 @@ export default {
                     serialList = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'])                        
                 }
 
-                resolve(serialList)
+                resolve({ serialList, workbook })
             }
 
             tempfilereader.readAsArrayBuffer(inputFile)
