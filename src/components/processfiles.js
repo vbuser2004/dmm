@@ -21,7 +21,7 @@ export default {
                     serialList = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'])                        
                 }
 
-                resolve(serialList)
+                resolve({ serialList, workbook })
             }
 
             tempfilereader.readAsArrayBuffer(inputFile)
@@ -52,9 +52,33 @@ export default {
                 worksheet['!ref'] = XLSX.utils.encode_range(range)
 
 
-                meterList.map((meterRead) => {
-                    duopList = micasList.reduce(x => x['Equip. #'])
-                    micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial #'])
+                meterList.map((meterRead, index, elements) => {
+                    let micasMeter = []
+                    let nextMeterRead = elements[index+1]
+
+
+
+
+
+
+                    if(meterRead['Serial Number'].charAt(0) === '0'){
+                        micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial Number'].substring(1))
+                    } else {
+                        micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial Number'])
+                    } 
+                    
+                     if (micasMeter.length > 0 ){
+                        if(micasMeter.length == 1 ) {
+
+
+                        }
+
+                        if(micasMeter.length > 1) {
+
+                        }
+
+                    }
+
 
 
                 })
