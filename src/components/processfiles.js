@@ -51,6 +51,15 @@ export default {
                 let range = {s: {r:0, c: 0}, e: {r: (recordCount + 10), c: 12}}
                 worksheet['!ref'] = XLSX.utils.encode_range(range)
 
+
+                meterList.map((meterRead) => {
+                    duopList = micasList.reduce(x => x['Equip. #'])
+                    micasMeter = micasList.filter(x => x['Serial Number'].toString() == meterRead['Serial #'])
+
+
+                })
+
+
                 do {
                     let sscell = 'F' + String(counter)
                     let nscell = 'F' + String(counter+1)
