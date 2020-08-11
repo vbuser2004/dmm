@@ -54,8 +54,10 @@ export default {
                 do {
                     let sscell = 'F' + String(counter)
                     let nscell = 'F' + String(counter+1)
-                    let searchSerial, nextSerial, micasMeter = null
+                    let escell = 'E' + String(counter)
+                    let searchSerial, nextSerial, micasMeter, searchId = null
                     if(worksheet[sscell] !== undefined){
+                        searchId = worksheet[escell].v.toString()
                         searchSerial = worksheet[sscell].v.toString()
                     }
                     if(worksheet[nscell] !== undefined){
@@ -64,11 +66,10 @@ export default {
                  
                     if(searchSerial != null || undefined){
                         if(searchSerial.charAt(0) === '0'){
-                            micasMeter = micasList.find(x => x['Serial Number'].toString() === searchSerial.substring(1))                            
+                            micasMeter = micasList.find(x => x['Serial Number'].toString() == searchSerial.substring(1) && (x['Machine ID'] == searchId))
                         } else {
-                            micasMeter = micasList.find(x => x['Serial Number'].toString() === searchSerial)
-                        }
-
+                            micasMeter = micasList.find(x => x['Serial Number'].toString() == searchSerial && (x['Machine ID'] == searchId))
+                        } 
                     }
 
                     if(micasMeter){
@@ -79,18 +80,15 @@ export default {
                             let colorcell = { v: micasMeter['Color Count'], t:'n'}
                             worksheet[lscell] = monocell
                             worksheet[lncell] = colorcell
-                            //console.log(counter + ': ' + searchSerial + ' - ' + nextSerial + ' **Color')
                             counter = counter + 2
                         } else {
                             let monocell = { v: micasMeter['Monochrome Count'], t:'n'}
                             worksheet[lscell] = monocell
-                            //console.log(counter + ': ' + searchSerial + ' - ' + nextSerial + ' **Mono')
                             counter++
                         }
                     } else {
                         counter++
                     }
-
                 }
 
                 while(counter <= (recordCount + 1) )
@@ -98,8 +96,7 @@ export default {
                 // Process Tech Meter List
                 techList.forEach((read) => {
                     const serialToSearch = read.Serial
-                    const results = meterList.filter(x => x['Serial #'] === serialToSearch)
-
+                    const results = meterList.filter(x => String(x['Serial #']) == serialToSearch)
                     if(results.length > 0){
                         const monoMeter = read['Current Mono']
                         const colorMeter = read['Current Color']
@@ -113,23 +110,17 @@ export default {
                             if(results[0]['Row #'] !== undefined && results[1]['Row #'] !== undefined) {
                                 const rowNumMono = results[0]['Row #']
                                 const rowNumColor = results[1]['Row #']
-                                console.log('Rows: ' + rowNumMono + ' - ' + rowNumColor)
                                 const mcell = 'L' + String(rowNumMono+1)
                                 const ccell = 'L' + String(rowNumColor+1)
-                                console.log('Cells: ' + mcell + ccell)                                
                                 worksheet[mcell] = { v: monoMeter, t:'n'}
                                 worksheet[ccell] = { v: colorMeter, t:'n'}
                             }
                         }
                     }
                 })
-
                 resolve(XLSX.writeFile(workbook, `SHARP COMPLETED MR List ${moment().format('MMMM YYYY')}.xlsx`))
             }
-
             tempfilereader.readAsArrayBuffer(inputFile)
         })
-
     }
-
 }
