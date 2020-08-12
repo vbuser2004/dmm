@@ -23,20 +23,16 @@ export default {
 
                 resolve({ serialList, workbook })
             }
-
             tempfilereader.readAsArrayBuffer(inputFile)
-
         })
 
     },
     updateXcel(workbook, meterList, micasList, techList ) {
 
         const recordCount = meterList.length
-
         let counter = 2
 
         return new Promise((resolve) => {
-
             // Get Worksheet from Workbook
                 let worksheet = workbook.Sheets['Sheet1']
                 let range = {s: {r:0, c: 0}, e: {r: (recordCount + 10), c: 12}}
@@ -117,6 +113,22 @@ export default {
                         }
                     }
                 })
+
+            // Format Usage Column to highlight negative numbers
+            const fmt = '#,##0_);[Red]\\("-"#,##0\\)'
+            const formatRange = { s: { r: 1, c: 10 }, e: { r: (recordCount + 10), c: 12 } };
+            for (let R = formatRange.s.r; R <= formatRange.e.r; ++R) {
+                for (let C = formatRange.s.c; C <= formatRange.e.c; ++C) {
+                    /* find the data cell (range.s.r + 1 skips the header row of the worksheet) */
+                    let cellRef = XLSX.utils.encode_cell({r:R, c:C});
+                    /* if the particular row did not contain data for the column, the cell will not be generated */
+                    if(!worksheet[cellRef]) continue;
+                    /* `.t == "n"` for number cells */
+                    if(worksheet[cellRef].t != 'n') continue;
+                    /* assign the `.z` number format */
+                    worksheet[cellRef].z = fmt;
+                }
+            }
                 resolve(XLSX.writeFile(workbook, `SHARP COMPLETED MR List ${moment().format('MMMM YYYY')}.xlsx`))
             })
     }
