@@ -1,33 +1,25 @@
 <template>
   <v-app>
-
-    <v-app-bar
-      app
-      color="indigo"
-      dark
-    >
-      <v-toolbar-title>Meter Organization</v-toolbar-title>
-
+    <v-app-bar app color="primary" dark>
+      <v-container>
+        <h2>Meter Organization</h2>
+      </v-container>
     </v-app-bar>
 
     <v-main>
-      <FileDrop/>
+      <FileDrop />
     </v-main>
-    <v-footer
-      color="indigo"
-      app
-    >
-    </v-footer>
+    <v-footer color="primary" app> </v-footer>
   </v-app>
 </template>
 
 <script>
-import FileDrop from '@/components/FileDrop.vue'
+import FileDrop from '@/components/FileDrop.vue';
 
 export default {
   name: 'App',
   components: {
-    FileDrop
-  }
+    FileDrop,
+  },
 };
 </script>

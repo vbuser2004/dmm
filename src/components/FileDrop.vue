@@ -6,6 +6,7 @@
           <v-file-input
             ref="mrlist"
             v-model="mrFile"
+            :clearable="false"
             @change="getmrFile"
             show-size
             label="Blank MR List"
@@ -13,7 +14,7 @@
             placeholder="Select .xlsx File Provided By Customer"
           ></v-file-input>
         </v-container>
-        <v-subheader>{{ mrCount }}</v-subheader>
+        <v-subheader v-show="mrCount">{{ mrCount }}</v-subheader>
       </v-card>
     </v-container>
     <v-container>
@@ -21,6 +22,7 @@
         <v-container>
           <v-file-input
             ref="micaslist"
+            :clearable="false"
             v-model="micasFile"
             @change="getmicasFile"
             show-size
@@ -29,7 +31,15 @@
             placeholder="Select MICAS Device Status File"
           ></v-file-input>
         </v-container>
-        <v-subheader>{{ micasCount }}</v-subheader>
+        <v-subheader v-show="micasCount">{{ micasCount }}</v-subheader>
+        <div>
+          <v-progress-linear
+            height="8px"
+            color="green"
+            :active="micasBar"
+            indeterminate
+          />
+        </div>
       </v-card>
     </v-container>
     <v-container>
@@ -38,6 +48,7 @@
           <v-file-input
             ref="techlist"
             v-model="techFile"
+            :clearable="false"
             @change="gettechFile"
             show-size
             label="Technician Manual Meter File"
@@ -45,7 +56,7 @@
             placeholder="Select Tech Manual Meter File"
           ></v-file-input>
         </v-container>
-        <v-subheader>{{ techCount }}</v-subheader>
+        <v-subheader v-show="techCount">{{ techCount }}</v-subheader>
       </v-card>
     </v-container>
     <v-container>
@@ -56,17 +67,20 @@
         :disabled="isValidFiles"
         outlined
         color="primary"
-      >Process Meters</v-btn>
-      <v-btn class="ma-2" @click="reset" outlined color="secondary">Reset</v-btn>
+        >Process Meters</v-btn
+      >
+      <v-btn class="ma-2" @click="reset" outlined color="secondary"
+        >Reset</v-btn
+      >
     </v-container>
   </v-container>
 </template>
 
 <script>
-import processfiles from "./processfiles";
+import processfiles from './processfiles';
 
 export default {
-  name: "app",
+  name: 'app',
   data() {
     return {
       loading: false,
@@ -80,31 +94,40 @@ export default {
       micasCount: null,
       techCount: null,
       resultPackage: {},
-      workbook: null
+      workbook: null,
+      micasBar: false,
     };
   },
   methods: {
     async getmrFile() {
+      this.mrCount = null;
       if (this.mrFile != null) {
-        this.resultPackage = await processfiles.processXcel(this.mrFile)
-        this.meterList = this.resultPackage.serialList
-        this.workbook = this.resultPackage.workbook
+        this.resultPackage = await processfiles.processXcel(this.mrFile);
+        this.meterList = this.resultPackage.serialList;
+        this.workbook = this.resultPackage.workbook;
         //console.log("Meters: " + JSON.stringify(this.meterList));
         this.mrCount = `${this.meterList.length.toLocaleString()} total records`;
       }
     },
     async getmicasFile() {
+      this.micasCount = null;
       if (this.micasFile != null) {
-         this.resultPackage = await processfiles.processXcel(this.micasFile);
-         this.micasList = this.resultPackage.serialList
+        this.micasBar = true;
+        this.resultPackage = await processfiles.processXcel(this.micasFile);
+        this.micasList = this.resultPackage.serialList;
         //console.log('Micas: ' + JSON.stringify(this.micasList))
+        this.micasBar = false;
         this.micasCount = `${this.micasList.length.toLocaleString()} total records`;
       }
     },
     async gettechFile() {
+      this.techCount = null;
       if (this.techFile != null) {
-        this.resultPackage = await processfiles.processXcel(this.techFile, true);
-        this.techList = this.resultPackage.serialList
+        this.resultPackage = await processfiles.processXcel(
+          this.techFile,
+          true
+        );
+        this.techList = this.resultPackage.serialList;
         //console.log('TechList: ' + JSON.stringify(this.techList))
         this.techCount = `${this.techList.length.toLocaleString()} total records`;
       }
@@ -124,7 +147,12 @@ export default {
     processMeters() {
       this.loading = true;
       processfiles
-        .updateXcel(this.workbook, this.meterList, this.micasList, this.techList)
+        .updateXcel(
+          this.workbook,
+          this.meterList,
+          this.micasList,
+          this.techList
+        )
         .then(() => {
           this.loading = false;
           this.reset();
