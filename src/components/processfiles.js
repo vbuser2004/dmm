@@ -70,17 +70,24 @@ export default {
 
                         let lscell = 'L' + String(counter)
                         let lncell = 'L' + String(counter+1)
-                        if(nextSerial == searchSerial){
-                            let monocell = { v: micasMeter['Monochrome Count'], t:'n'}
-                            let colorcell = { v: micasMeter['Color Count'], t:'n'}
-                            worksheet[lscell] = monocell
-                            worksheet[lncell] = colorcell
-                            counter = counter + 2
-                        } else {
-                            let monocell = { v: micasMeter['Monochrome Count'], t:'n'}
-                            worksheet[lscell] = monocell
+                        try {
+                            if(nextSerial == searchSerial){
+
+                                let monocell = { v: micasMeter['Monochrome Count'], t:'n'}
+                                let colorcell = { v: micasMeter['Color Count'], t:'n'}
+                                worksheet[lscell] = monocell
+                                worksheet[lncell] = colorcell
+                                counter = counter + 2
+                            } else {
+                                let monocell = { v: micasMeter['Monochrome Count'], t:'n'}
+                                worksheet[lscell] = monocell
+                                counter++
+                            }
+                        } catch(err) {
+                            console.log('Micas Duplicate Error! - ' + searchSerial + ' Counter: ' + counter)
                             counter++
                         }
+
                     } else {
                         counter++
                     }
