@@ -35,13 +35,10 @@ async function getModelSerial(fileName) {
 const getLogData = async (fileData) => {
 
     const tempfilereader = new FileReader()
-    // const csvFile = tempfilereader.readAsText(fileData.file);
-    // const csvData = csvFile.toString();
     let subList = []
 
     return new Promise(resolve => {
         tempfilereader.onload = (evt) => {
-            console.log('File: ' + evt.target.result);
             Papa.parse(evt.target.result, {
                 skipEmptyLines: true,
                 delimiter: ',',

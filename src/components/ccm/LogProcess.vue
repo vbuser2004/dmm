@@ -10,7 +10,17 @@
                   item-value="id"
                   label="Billing Month"
                   title="Billing Month" 
-                  placeholder="Select Billing Month" />
+                 placeholder="Select Billing Month" />
+          <v-file-input
+            ref="ccmBase"
+            v-model="ccmBase"
+            :clearable="true"
+            @change="getccmBase"
+            show-size
+            label="Blank Base Meter Sheet"
+            accept=".xlsx"
+            placeholder="Select blank Base Meter Sheet File"
+          ></v-file-input>
 
                 <v-btn outlined class="mb-5" color="primary" @click="removeFiles"
                 ><v-icon>mdi-close-circle-outline</v-icon> Clear All Files</v-btn
@@ -45,6 +55,10 @@
           </v-card-text>
       </v-card>
     </v-container>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
+
   </v-container>
 </template>
 
@@ -59,8 +73,11 @@ export default {
         VueDropZone: vue2Dropzone
     },
       data: () => ({
+          overlay: false,
+          ccmBase: null,
           fileCount: 0,
           billingMonth: null,
+          baseWorkbook: null,
           fileList: [],
           selectMonths: [
             { id: "January", val: "January"},
@@ -91,6 +108,13 @@ export default {
             this.billingMonth = null;
           }
       },
+      async getccmBase() {
+      if (this.ccmBase != null) {
+        this.overlay = true;
+        this.baseWorkbook = await createXlsx.getWorkbook(this.ccmBase);
+        this.overlay = false;
+      }
+    },
      async processFiles() {
 
       const completedData = await Promise.all(
@@ -101,8 +125,9 @@ export default {
             return fileData
         })
     )
-
-    await createXlsx.genFile(completedData, this.billingMonth);
+   
+   
+    await createXlsx.genFile(this.baseWorkbook, completedData, this.billingMonth);
 
     },
     filesAdded() {
@@ -114,7 +139,7 @@ export default {
     computed: {
      getDropZoneOptions() {
       return {
-        url: 'http://pastebin.org',
+        url: 'http://error.nolink',
         maxFileSize: 0.5,
         maxFiles: 100,
         addRemoveLinks: true,

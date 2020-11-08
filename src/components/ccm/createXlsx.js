@@ -1,17 +1,11 @@
 //const ExcelJS = require('exceljs');
 import ExcelJS from "exceljs/dist/es5/exceljs.browser";
 //import { Workbook } from 'exceljs/excel';
-
 import xref from './xref.json';
+import { saveAs } from 'file-saver';
 
 export default {
-
-
-    async genFile (completedData, billingMonth) {
-        console.log('Completed: ' + JSON.stringify(completedData.logData));
-
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.read('./ccm-base.xlsx');
+    async genFile (workbook, completedData, billingMonth) {
 
         let worksheet = workbook.getWorksheet('Monthly Detail');
 
@@ -108,27 +102,50 @@ export default {
                 })
             })
 
-            resolve(workbook.xlsx.writeFile(`Chatham County Meters - ${billingMonth}.xlsx`))
+            resolve(
+                workbook.xlsx.writeBuffer().then(function(data) {
+                    const blob = new Blob([data], 
+                    { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                    saveAs(blob, `Chatham County Meters - ${billingMonth}.xlsx`)
+                })
+            )
 
     })
 
-},
- async getPriorMonth(billingMonth) {
+    },
+    async getWorkbook(workbookFile) {
+
+        const tempfilereader = new FileReader()
+
+        tempfilereader.readAsArrayBuffer(workbookFile)
+
+        return new Promise(resolve => {
+            tempfilereader.onload = async () => {
+                const buffer = tempfilereader.result;
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(buffer)
+     
+                resolve(workbook)
+            }
+        })
+        
+
+    },
+    async getPriorMonth(billingMonth) {
     
-    if(billingMonth === 'January') return 'December'
-    if(billingMonth === 'February') return 'January'
-    if(billingMonth === 'March') return 'February'
-    if(billingMonth === 'April') return 'March'
-    if(billingMonth === 'May') return 'April'
-    if(billingMonth === 'June') return 'May'
-    if(billingMonth === 'July') return 'June'
-    if(billingMonth === 'August') return 'July'
-    if(billingMonth === 'September') return 'August'
-    if(billingMonth === 'October') return 'September'
-    if(billingMonth === 'November') return 'October'
-    if(billingMonth === 'December') return 'November'
+        if(billingMonth === 'January') return 'December'
+        if(billingMonth === 'February') return 'January'
+        if(billingMonth === 'March') return 'February'
+        if(billingMonth === 'April') return 'March'
+        if(billingMonth === 'May') return 'April'
+        if(billingMonth === 'June') return 'May'
+        if(billingMonth === 'July') return 'June'
+        if(billingMonth === 'August') return 'July'
+        if(billingMonth === 'September') return 'August'
+        if(billingMonth === 'October') return 'September'
+        if(billingMonth === 'November') return 'October'
+        if(billingMonth === 'December') return 'November'
 
-}
-
+    }
 
 }
