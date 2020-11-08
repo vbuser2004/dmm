@@ -22,7 +22,7 @@
             placeholder="Select blank Base Meter Sheet File"
           ></v-file-input>
 
-                <v-btn outlined class="mb-5" color="primary" @click="removeFiles"
+                <v-btn outlined class="mb-5" color="primary" @click="removeFiles" :disabled="fileCount <= 0"
                 ><v-icon>mdi-close-circle-outline</v-icon> Clear All Files</v-btn
               >
                <v-btn outlined class="ml-4 mb-5" color="success" @click="processFiles" :disabled="fileCount == 0 || billingMonth == null">
@@ -30,7 +30,7 @@
                </v-btn>
 
                 <div>
-                    <h3>Files: {{ fileCount }} </h3>                    
+                    <h3>Log Files: {{ fileCount }} </h3>                    
                 </div>
 
 
