@@ -1,18 +1,13 @@
 // Extract data from csv file
-const fs = require('fs');
 const Papa = require('papaparse');
 
 
-const getFileList = async (fileList) => {
+const getFileDetails = async (file) => {
 
-    const dataFile = []
+    let fileInfo =  await getModelSerial(file.name)
+    fileInfo.file = file;
 
-    fileList.map(async (file) => {
-       const fileInfo =  await getModelSerial(file)
-       dataFile.push(fileInfo)
-    })
-
-    return dataFile
+    return fileInfo
 }
 
 async function getModelSerial(fileName) {
@@ -38,38 +33,45 @@ async function getModelSerial(fileName) {
 
 
 const getLogData = async (fileData) => {
-    const csvFile = fs.readFileSync(fileData.fileLocation);
-    const csvData = csvFile.toString();
+
+    const tempfilereader = new FileReader()
+    // const csvFile = tempfilereader.readAsText(fileData.file);
+    // const csvData = csvFile.toString();
     let subList = []
 
     return new Promise(resolve => {
-        Papa.parse(csvData, {
-            skipEmptyLines: true,
-            delimiter: ',',
-            dynamicTyping: true,
-            header: true,
-            complete: results => {
-
-                results.data.map(async (accountList) => {
-                    // First assign values
-                    const accountName = accountList['User Name']
-                    const copyMono = accountList['Copy:Black & White:Pages used']
-                    const copyColor = accountList['Copy:Full Color:Pages used']
-                    const printMono = accountList['Printer:Black & White:Pages used']
-                    const printColor = accountList['Printer:Full Color:Pages used']
-
-                    if(copyMono + copyColor + printMono + printColor > 0) {
-                        subList.push({accountName, copyMono, copyColor, printMono, printColor })
-                    }  
-                })
-                resolve(subList);
-            }
-        })
+        tempfilereader.onload = (evt) => {
+            console.log('File: ' + evt.target.result);
+            Papa.parse(evt.target.result, {
+                skipEmptyLines: true,
+                delimiter: ',',
+                dynamicTyping: true,
+                header: true,
+                complete: results => {
+    
+                    results.data.map(async (accountList) => {
+                        // First assign values
+                        const accountName = accountList['User Name']
+                        const copyMono = accountList['Copy:Black & White:Pages used']
+                        const copyColor = accountList['Copy:Full Color:Pages used']
+                        const printMono = accountList['Printer:Black & White:Pages used']
+                        const printColor = accountList['Printer:Full Color:Pages used']
+    
+                        if(copyMono + copyColor + printMono + printColor > 0) {
+                            subList.push({accountName, copyMono, copyColor, printMono, printColor })
+                        }  
+                    })
+                    
+                    resolve(subList);
+                }
+            })
+        }
+        tempfilereader.readAsText(fileData.file);
     })
 
 }
 
 module.exports = {
-    getFileList,
+    getFileDetails,
     getLogData
 }

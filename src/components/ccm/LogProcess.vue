@@ -31,6 +31,7 @@
                 :useCustomSlot="true"
                 class="mt-10"
                 v-on:vdropzone-files-added="filesAdded"
+                v-on:vdropzone-removed-file="fileRemoved"
             >
              <div class="dropzone-custom-content">
                   <h3 class="dropzone-custom-title">
@@ -83,13 +84,21 @@ export default {
           this.billingMonth = null;
 
       },
+      fileRemoved() {
+          this.fileList = this.$refs.logDropZone.getQueuedFiles();
+          this.fileCount = this.fileList.length
+          if(this.fileCount == 0) {
+            this.billingMonth = null;
+          }
+      },
      async processFiles() {
 
       const completedData = await Promise.all(
         this.fileList.map(async (file) => {        
-            const log = await extractData.getLogData(file);
-            file.logData = [...log];
-            return file
+            const fileData = await extractData.getFileDetails(file);
+            const log = await extractData.getLogData(fileData);
+            fileData.logData = [...log];
+            return fileData
         })
     )
 
