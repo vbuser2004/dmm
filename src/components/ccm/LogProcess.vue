@@ -99,6 +99,7 @@ export default {
           this.$refs.logDropZone.removeAllFiles();
           this.fileCount = 0;
           this.billingMonth = null;
+          this.ccmBase = null;
 
       },
       fileRemoved() {
@@ -127,7 +128,8 @@ export default {
     )
    
    
-    await createXlsx.genFile(this.baseWorkbook, completedData, this.billingMonth);
+      await createXlsx.genFile(this.baseWorkbook, completedData, this.billingMonth);
+      this.removeFiles();
 
     },
     filesAdded() {
