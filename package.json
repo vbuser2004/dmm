@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "exceljs": "^4.2.0",
     "moment": "^2.27.0",
+    "papaparse": "^5.3.0",
     "vue": "^2.6.11",
+    "vue2-dropzone": "^3.6.0",
     "vuetify": "^2.2.11",
     "xlsx": "^0.16.5"
   },
