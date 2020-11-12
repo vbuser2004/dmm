@@ -41,6 +41,7 @@
                 :useCustomSlot="true"
                 class="mt-10"
                 v-on:vdropzone-files-added="filesAdded"
+                v-on:vdropzone-success-multiple="filesAdded"
                 v-on:vdropzone-removed-file="fileRemoved"
             >
              <div class="dropzone-custom-content">
@@ -133,9 +134,10 @@ export default {
 
     },
     filesAdded() {
-        this.fileList = this.$refs.logDropZone.getQueuedFiles();
-        this.fileCount = this.fileList.length;
-
+      setTimeout(() => {
+              this.fileList = this.$refs.logDropZone.getQueuedFiles();
+              this.fileCount = this.fileList.length;
+            }, 800);
     }
   },
     computed: {
