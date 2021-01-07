@@ -14,6 +14,8 @@
     "moment": "^2.27.0",
     "papaparse": "^5.3.0",
     "vue": "^2.6.11",
+    "vue-meta": "^2.4.0",
+    "vue-router": "^3.4.9",
     "vue2-dropzone": "^3.6.0",
     "vuetify": "^2.2.11",
     "xlsx": "^0.16.5"
