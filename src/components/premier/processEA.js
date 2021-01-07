@@ -12,8 +12,8 @@ export default {
         //const materialRow = worksheet.getRow(2);
         const materialCol = worksheet.getColumn('C');
 
-        //save for future - if need to get 'address' of cell
-        //worksheet.getRow(5).getCell(5)._address
+        // save for future - if need to get 'address' of cell
+        // worksheet.getRow(5).getCell(5)._address
         // worksheet.getCell('I4').value = billingMonth;
         // worksheet.getCell('H4').value = await this.getPriorMonth(billingMonth);
 
@@ -25,9 +25,8 @@ export default {
             }
         })
         blankList.push(worksheet.rowCount + 1);
-        console.log('List: ' + blankList);
+        // console.log('List: ' + blankList);
         // console.log('Length: ' + blankList[181]);
-
         // Cycle through array of null values to get device details
         let i; 
         for (i = 0; i < blankList.length - 1; i++) {
@@ -61,10 +60,8 @@ export default {
                 deviceList.push(device);
             }
         }
+        return deviceList;
 
-        deviceList.map((dev) => {
-            console.log(dev.orderCount + '-' + dev.number + '-' + dev.itemList[0]);
-        })
     },
     async getWorkbook(workbookFile) {
 
