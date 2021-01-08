@@ -3,7 +3,7 @@
       <v-card tile class="d-flex d-flex-row auto">
       <v-card outlined class="flex-grow-1 flex-shrink-0 align-self-start ma-2">
         <v-card-title>
-          Upload Base Spreadsheets
+          Upload Spreadsheets
         </v-card-title>
         <v-card-text>
           <v-file-input
@@ -27,12 +27,30 @@
             accept=".xlsx"
             placeholder="Select the Order Template File"
           ></v-file-input>
+            <v-select 
+                 v-model="purchaseType"
+                  :items="purchaseTypes"
+                  item-text="val"
+                  item-value="id"
+                  label="Purchase or Lease"
+                  title="Purchase or Lease" 
+                 placeholder="Select Purchase Type" />
+
+            <v-select 
+                 v-model="maintenanceType"
+                  :items="maintenanceTypes"
+                  item-text="val"
+                  item-value="id"
+                  label="Maintenance"
+                  title="Maintenance" 
+                 placeholder="Select Maintenance" />
+
               <v-container>
                 <v-btn
                   class="ma-1"
                   :loading="processingDataFiles"
                   @click="processFiles"
-                  :disabled="!eaData || !templateFile"
+                  :disabled="!eaData || !tfile"
                   outlined
                   color="primary"
                 >Process Meters</v-btn>
@@ -43,6 +61,9 @@
                         File Progress {{ getPercentage() }}%
                     </span>
             </v-progress-linear>
+            <span v-if="showInvalidFileError" class="red--text">
+              Invalid File Uploaded!
+            </span>
           </div>
               </v-container>
         </v-card-text>
@@ -113,13 +134,25 @@ export default {
   data() {
     return {
       overlay: false,
+      showInvalidFileError: false,
       processingDataFiles: false,
       eaEDF: null,
       eaData: null,
       tfile: null,
       templateFile: null,
       currentNumber: 0,
-      fileList: []
+      fileList: [],
+      maintenanceType: 'cpc',
+      purchaseType: 'lease',
+      purchaseTypes: [
+        { val: "Lease", id: "lease" },
+        { val: "Purchase", id: "purchase" },
+      ],
+      maintenanceTypes: [
+        { val: "Cost-Per-Copy", id: "cpc" },
+        { val: "Monthly Zone 1", id: "zone1" },
+        { val: "Monthly Zone 2", id: "zone2" }
+      ]
     } 
   },
   methods: {
@@ -136,16 +169,28 @@ export default {
     },
     async getTemplateFile() {
         // Get Premier Template File
-        if(this.tfile){
-          this.templateFile = await processEA.getWorkbook(this.tfile);
+        try {
+          if(this.tfile){
+            this.templateFile = await processEA.getWorkbook(this.tfile);
+          }
+        } catch {
+          this.showInvalidFileError = true;
         }
+
     },
     async processFiles() {
       // Process data
       this.processingDataFiles = true;
+      
+      // Get template file again to make sure it is clear
+      if(this.tfile) {
+        this.templateFile = await processEA.getWorkbook(this.tfile);
+      }
+
       let i;
-      for(i=0; i < this.eaData.length - 1; i++){
-        this.fileList.push(await processTemplate.fillInTemplate(this.templateFile, this.eaData[i]));
+      for(i=0; i < this.eaData.length; i++){
+        this.fileList.push(await processTemplate.fillInTemplate(this.templateFile, this.eaData[i], 
+                this.purchaseType, this.maintenanceType));
         this.currentNumber = this.eaData[i].orderCount
       }
 
@@ -162,6 +207,7 @@ export default {
         this.eaData = null;
         this.overlay = false;
         this.processingDataFiles = false;
+        this.showInvalidFileError = false;
     },
     getNum(listNum) {
       if(listNum === null) {

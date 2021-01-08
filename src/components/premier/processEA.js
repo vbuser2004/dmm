@@ -1,21 +1,23 @@
 import ExcelJS from "exceljs/dist/es5/exceljs.browser";
-// import { saveAs } from 'file-saver';
 
 export default {
 
     async getEAData(workbook) {
-        let worksheet = workbook.getWorksheet('EA NEW PLACEMENTS');
+        let worksheet = null;
         let blankList = [1];
         let deviceList = [];
         let orderCount = 0;
 
-        //const materialRow = worksheet.getRow(2);
+        try{                        
+            worksheet = workbook.getWorksheet('EA NEW PLACEMENTS');
+        } catch {
+            return null;
+        }
+
         const materialCol = worksheet.getColumn('C');
 
         // save for future - if need to get 'address' of cell
         // worksheet.getRow(5).getCell(5)._address
-        // worksheet.getCell('I4').value = billingMonth;
-        // worksheet.getCell('H4').value = await this.getPriorMonth(billingMonth);
 
         materialCol.eachCell({ includeEmpty: true }, function(cell, rowNumber) {
             if(rowNumber > 1){
@@ -25,8 +27,7 @@ export default {
             }
         })
         blankList.push(worksheet.rowCount + 1);
-        // console.log('List: ' + blankList);
-        // console.log('Length: ' + blankList[181]);
+
         // Cycle through array of null values to get device details
         let i; 
         for (i = 0; i < blankList.length - 1; i++) {
